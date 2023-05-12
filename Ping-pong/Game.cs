@@ -14,7 +14,7 @@ namespace Ping_pong
     {
         private Ball ball;
         RenderWindow window;
-        private static Stopwatch clock = new Stopwatch();
+        private Stopwatch clock = new Stopwatch();
 
 
         public void StartGame()
@@ -24,23 +24,26 @@ namespace Ping_pong
             double totalTimeBeforeUpdate = 0d;
             float previousTimeElapsed = 0f;
             float deltaTime = 0;
-            float totalTimeELapsed = 0f;
+            float totalTimeElapsed = 0f;
 
             Clock clock = new Clock();
 
             while (window.IsOpen) 
             {
-                totalTimeELapsed = clock.ElapsedTime.AsMilliseconds();
-                deltaTime = totalTimeELapsed - previousTimeElapsed;
-                previousTimeElapsed = totalTimeELapsed;
+                totalTimeElapsed = clock.ElapsedTime.AsSeconds();
+                deltaTime = totalTimeElapsed - previousTimeElapsed;
+                previousTimeElapsed = totalTimeElapsed;
 
                 totalTimeBeforeUpdate += deltaTime;
 
-                if (totalTimeBeforeUpdate >= 0.03)
+                if (totalTimeElapsed >= 0.03)
                 {
-                    DoGameStep();
-                }
+                    totalTimeBeforeUpdate = 0;
 
+                    DoGameStep();
+
+                    Time.UpdateTime();
+                }
             }
         }
         private void Init()
@@ -59,7 +62,7 @@ namespace Ping_pong
 
             Display();
 
-            ball.Move();
+            ball.Update();
 
             TryClose();
         }

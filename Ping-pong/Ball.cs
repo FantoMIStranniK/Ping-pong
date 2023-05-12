@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Ping_pong
 {
-    public class Ball
+    public class Ball : GameObject
     {
         public CircleShape BallShape;
         public float speed { get; private set; } = .000001f;
 
-        private int YDirection = 1;
+        private int YDirection = 0;
         private int XDirection = 1;
 
         public Ball() 
@@ -26,7 +26,12 @@ namespace Ping_pong
             float newBallX = BallShape.Position.X + XDirection * Time.deltaTime * speed;
             float newBallY = BallShape.Position.Y + YDirection * Time.deltaTime * speed;
 
-            BallShape.Position = new Vector2f(BallShape.Position.X + newBallX, BallShape.Position.Y + newBallY); ;
+            BallShape.Position = new Vector2f(BallShape.Position.X + newBallX, BallShape.Position.Y + newBallY);
+        }
+
+        public override void Update()
+        {
+            Move();
         }
     }
 }
