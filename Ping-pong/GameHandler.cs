@@ -9,10 +9,7 @@ namespace Ping_pong
         private Game game = new Game();
         public void LaunchGame()
         {
-            while(gameStarted)
-            {
-                game.StartGame();
-            }
+            game.StartGame();
         }
     }
 }
