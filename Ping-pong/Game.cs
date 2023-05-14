@@ -76,7 +76,7 @@ namespace Ping_pong
 
             window.DispatchEvents();
 
-            window.Draw(ball.BallShape);
+            window.Draw(ball.Shape);
 
             window.Display();
         }
