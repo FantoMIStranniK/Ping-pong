@@ -1,12 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Ping_pong
 {
@@ -21,6 +15,8 @@ namespace Ping_pong
         public Ball() 
         {
             Shape = new CircleShape(150);
+
+            Shape.Origin = new Vector2f(Shape.Radius, Shape.Radius);
         }
         public void Move()
         {
