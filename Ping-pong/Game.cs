@@ -8,29 +8,35 @@ namespace Ping_pong
 {
     public class Game
     {
-        private Ball ball;
-        RenderWindow window;
         private Stopwatch clock = new Stopwatch();
 
+        private Ball ball;
+        private RenderWindow window;
+
+        List<GameObject> GameObjects = new List<GameObject>();
 
         public void StartGame()
         {
             Init();
 
+            #region Time variables
             double totalTimeBeforeUpdate = 0d;
             float previousTimeElapsed = 0f;
             float deltaTime = 0;
             float totalTimeElapsed = 0f;
+            #endregion
 
             Clock clock = new Clock();
 
             while (window.IsOpen) 
             {
+                #region Time operations
                 totalTimeElapsed = clock.ElapsedTime.AsSeconds();
                 deltaTime = totalTimeElapsed - previousTimeElapsed;
                 previousTimeElapsed = totalTimeElapsed;
 
                 totalTimeBeforeUpdate += deltaTime;
+                #endregion
 
                 if (totalTimeElapsed >= 0.03)
                 {
@@ -42,6 +48,16 @@ namespace Ping_pong
                 }
             }
         }
+        private void DoGameStep()
+        {
+            Time.UpdateTime();
+
+            Display();
+
+            UpdateGameObjects();
+
+            TryClose();
+        }
         private void Init()
         {
             Time.Start();
@@ -51,16 +67,16 @@ namespace Ping_pong
             window = new RenderWindow(new VideoMode(1600, 900), "Game window");
 
             window.SetFramerateLimit(30);
+
+            GameObjects.Add(ball);
+
         }
-        private void DoGameStep()
+        private void UpdateGameObjects()
         {
-            Time.UpdateTime();
-
-            Display();
-
-            ball.Update();
-
-            TryClose();
+            foreach (var gameObject in GameObjects)
+            {
+                gameObject.Update();
+            }
         }
         private void TryClose()
         {
