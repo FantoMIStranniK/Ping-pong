@@ -21,6 +21,8 @@ namespace Ping_pong
         private uint width = 1600;
         private uint height = 900;
 
+        private bool gameFinished = false;
+
         public void StartGame()
         {
             Init();
@@ -52,6 +54,9 @@ namespace Ping_pong
 
                     Time.UpdateTime();
                 }
+
+                if(gameFinished)
+                    window.Close();
             }
         }
         private void DoGameStep()
@@ -63,6 +68,8 @@ namespace Ping_pong
             UpdateGameObjects();
 
             TryClose();
+
+            CheckBallPosition();
         }
         private void CheckCollisionWithBall(Shape collisionShape)
         {
@@ -98,6 +105,11 @@ namespace Ping_pong
                 left,
                 right,
             };
+        }
+        private void CheckBallPosition()
+        {
+            if(ball.Shape.Position.Y - ball.Shape.Radius <= 100 || ball.Shape.Position.Y + ball.Shape.Radius >= height -100)
+                gameFinished = true;
         }
         private void UpdateGameObjects()
         {

@@ -4,9 +4,9 @@
     {
         static void Main(string[] args)
         {
-            GameHandler gameHandler = new GameHandler();
+            Game game = new Game();
 
-            gameHandler.LaunchGame();
+            game.StartGame();
         }
     }
 }

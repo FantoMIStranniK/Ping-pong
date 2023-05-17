@@ -71,7 +71,7 @@ namespace Ping_pong
         {
             Random rand = new Random();
 
-            if(countOfTicks >= 15)
+            if(countOfTicks >= 12)
             {
                 countOfTicks = 0;
 
