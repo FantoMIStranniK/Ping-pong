@@ -6,25 +6,23 @@ namespace Ping_pong
 {
     public class Player : GameObject
     {
-        public RectangleShape padleShape;
+        public int Score { get; private set; } = 0;
+
+        public RectangleShape padleShape { get; private set; }
 
         public bool IsAi {get; private set;} = false;
 
         private Vector2f size = new Vector2f(250, 7.5f);
 
         private float speed = 10f;
+
         private int moveDirection = 0;
         private int width;
-        private int height;
-
         private int countOfTicks = 0;
 
         public Player(bool isAi, int ScreenWidth)
         {
             IsAi = isAi;
-
-            m_Collider = this;
-            m_Movement = this;
 
             width = ScreenWidth;
 
@@ -42,13 +40,21 @@ namespace Ping_pong
 
             tag = "padle";
         }
+        public void AddScore()
+        {
+            Score++;
+        }
         public override void Update()
         {
             base.Update();
 
-            GetInput();
-
             Move();
+        }
+        public override void Awake()
+        {
+            base.Awake();
+
+            padleShape.Position = new Vector2f(1600 / 2, 120);
         }
         public void GetInput()
         {
@@ -65,7 +71,6 @@ namespace Ping_pong
                 moveDirection = -1;
             if (Keyboard.IsKeyPressed(Keyboard.Key.D) && CanMoveRight())
                 moveDirection = 1;
-
         }
         private void AiInput()
         {

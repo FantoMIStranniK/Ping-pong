@@ -5,13 +5,20 @@ namespace Ping_pong
 {
     public abstract class GameObject : ICollider, IMovement
     {
-        public string tag = " ";
+        public string tag { get; protected set; } = " " ;
 
-        protected ICollider m_Collider;
-        protected IMovement m_Movement;
+        public Shape DrawableShape { get; protected set; }
 
-        public Shape DrawableShape;
+        public bool IsCollidingWith(Shape thisShape, Shape collidedShape)
+        {
+            var thisBounds = thisShape.GetGlobalBounds();
+            var collidedShapeBounds = collidedShape.GetGlobalBounds();
 
+            if (thisBounds.Intersects(collidedShapeBounds))
+                return true;
+
+            return false;
+        }
         public virtual void Move(){}
         public virtual void Awake(){}
         public virtual void Update(){}

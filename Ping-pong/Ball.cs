@@ -12,11 +12,11 @@ namespace Ping_pong
         public float yDirection = -1;
         public float xDirection = -0.5f;
 
+        private float lastYDirection = -1;
+        private float lastXDirection = -1;
+
         public Ball() 
         {
-            m_Collider = this;
-            m_Movement = this;
-
             speed = 2f;
 
             Shape = new CircleShape(75);
@@ -38,6 +38,12 @@ namespace Ping_pong
 
             Move();
         }
+        public override void Awake()
+        {
+            base.Awake();
+
+            Shape.Position = new Vector2f(1600 / 2, 900 / 2);
+        }
         public override void Move()
         {
             base.Move();
@@ -46,17 +52,37 @@ namespace Ping_pong
 
             Shape.Position += direction * speed;
         }
-        public void TryChangeDirectionOnCollision(Shape collisionShape)
+        public void TryChangeDirectionOnCollision(GameObject collideable)
         {
-            if (m_Collider.IsCollidingWith(Shape, collisionShape))
-                ChangeDirection();
+            if (IsCollidingWith(Shape, collideable.DrawableShape))
+            {
+                ChangeDirection(collideable.tag);
+            }
+            else
+            {
+                lastYDirection = yDirection;                
+                lastXDirection = xDirection;
+            }
         }
-        public void ChangeDirection()
+        public void ChangeDirection(string tag)
         {
             Random rand = new Random();
 
-            xDirection = -xDirection + rand.NextSingle() * (xDirection / Math.Abs(xDirection));
-            yDirection = -yDirection + rand.NextSingle() * (yDirection / Math.Abs(yDirection));
+            if (lastYDirection == yDirection && tag is not "border")
+            {
+                yDirection = -yDirection;
+            }
+
+            if (lastXDirection == xDirection && tag is "border")
+            {
+                xDirection = -xDirection;
+            }
+        }
+        public void ResetBall(float x, float y)
+        {
+            yDirection = -yDirection;
+
+            Shape.Position = new Vector2f(x, y);
         }
     }
 }

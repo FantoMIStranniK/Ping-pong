@@ -1,101 +1,68 @@
 ﻿using SFML.Graphics;
-using SFML.System;
 using SFML.Window;
-using System.Diagnostics;
 
 namespace Ping_pong
 {
     public class Game
     {
-        private Stopwatch clock = new Stopwatch();
-
         private Ball ball;
         private Player player1;
         private Player player2;
 
         private List<GameObject> gameObjects = new List<GameObject>();
-
-        private RenderWindow window;
-        private uint wantedFrameRate = 144;
-
-        private uint width = 1600;
-        private uint height = 900;
-
-        private bool gameFinished = false;
+        private List<Player> players = new List<Player>(); 
 
         public void StartGame()
         {
             Init();
 
-            #region Time variables
-            double totalTimeBeforeUpdate = 0d;
-            float previousTimeElapsed = 0f;
-            float deltaTime = 0;
-            float totalTimeElapsed = 0f;
-
-            Clock clock = new Clock();
-            #endregion
-
-            while (window.IsOpen) 
+            while (Render.window.IsOpen) 
             {
-                #region Time operations
-                totalTimeElapsed = clock.ElapsedTime.AsSeconds();
-                deltaTime = totalTimeElapsed - previousTimeElapsed;
-                previousTimeElapsed = totalTimeElapsed;
+                Time.UpdateSystemTime();
 
-                totalTimeBeforeUpdate += deltaTime;
-                #endregion
-
-                if (totalTimeElapsed >= 1/wantedFrameRate)
+                if (Time.totalTimeBeforeUpdate >= 1/Render.wantedFrameRate)
                 {
-                    totalTimeBeforeUpdate = 0;
+                    Time.ResetTimeBeforeUpdate();
 
                     DoGameStep();
 
                     Time.UpdateTime();
                 }
 
-                if(gameFinished)
-                    window.Close();
+                Render.TryClose();
             }
         }
         private void DoGameStep()
         {
             Time.UpdateTime();
 
-            Display();
+            GetInput();
 
             UpdateGameObjects();
 
-            TryClose();
+            Render.RenderWindow(gameObjects, player1.Score, player2.Score);
+        }
 
-            CheckBallPosition();
-        }
-        private void CheckCollisionWithBall(Shape collisionShape)
-        {
-            ball.TryChangeDirectionOnCollision(collisionShape);
-        }
+        #region Init
         private void Init()
         {
+            Render.InitRender();
+
             Time.Start();
 
             ball = new Ball();
-            player1 = new Player(false, (int)width);
-            player2 = new Player(true, (int)width);
+            player1 = new Player(false, (int)Render.width);
+            player2 = new Player(false, (int)Render.width);
 
-            ball.Shape.Position = new Vector2f(width / 2, height / 2);
-            player1.padleShape.Position = new Vector2f(width / 2, 120);
-            player2.padleShape.Position = new Vector2f(width / 2, height - 120);
+            Border left = new Border(25, (int)Render.height);
+            Border right = new Border(25, (int)Render.height);
 
-            window = new RenderWindow(new VideoMode(width, height), "Game window");
+            left.SetPosition(0, (int)Render.height);
+            right.SetPosition((int)Render.width, (int)Render.height);
 
-            window.SetFramerateLimit(wantedFrameRate);
-
-            Border left = new Border(25, (int)height);
-            Border right = new Border(25, (int)height);
-
-            right.BorderShape.Position = new Vector2f((int)width, (int)height / 2);
-            left.BorderShape.Position = new Vector2f(0, (int)height / 2);
+            
+            //Make gameobjects list
+            players = new List<Player> { player1, player2 };
 
             gameObjects = new List<GameObject>()
             {
@@ -105,12 +72,40 @@ namespace Ping_pong
                 left,
                 right,
             };
+
+            //Awaken my masters!
+            foreach(var gameObject in gameObjects)
+                gameObject.Awake();
+
+            player2.padleShape.Position = new SFML.System.Vector2f((int)Render.width / 2, Render.height - 120);
         }
+        #endregion
+
+        #region Input
+        private void GetInput()
+        {
+            foreach(var player in players)
+                player.GetInput();
+        }
+        #endregion
+
+        #region Update
         private void CheckBallPosition()
         {
-            if(ball.Shape.Position.Y - ball.Shape.Radius <= 100 || ball.Shape.Position.Y + ball.Shape.Radius >= height -100)
-                gameFinished = true;
+            if (BallIsOutOfUpperBounds() || BallIsOutOfBottomBounds())
+            {
+                if (BallIsOutOfUpperBounds())
+                    player2.AddScore();
+                if(BallIsOutOfBottomBounds())
+                    player1.AddScore();
+
+                ball.ResetBall(Render.width / 2f, Render.height / 2f);
+            }
         }
+        private bool BallIsOutOfUpperBounds()
+            => ball.Shape.Position.Y + ball.Shape.Radius >= Render.height - 100;
+        private bool BallIsOutOfBottomBounds()
+            =>  ball.Shape.Position.Y - ball.Shape.Radius <= 100;
         private void UpdateGameObjects()
         {
             foreach (var gameObject in gameObjects)
@@ -118,38 +113,13 @@ namespace Ping_pong
                 gameObject.Update();
 
                 if (gameObject.tag is not "ball")
-                {
-                    CheckCollisionWithBall(gameObject.DrawableShape);
-                }
+                    CheckCollisionWithBall(gameObject);
             }
-        }
-        #region Window
-        private void TryClose()
-        {
-            window.Closed += WindowClosed;
-        }
-        private void Display()
-        {
-            window.Clear(Color.Black);
 
-            window.DispatchEvents();
-
-            DrawGameObjects();
-
-            window.Display();
+            CheckBallPosition();
         }
-        private void DrawGameObjects()
-        {
-            foreach(var gameObject in gameObjects)
-            {
-                window.Draw(gameObject.DrawableShape);
-            }
-        }
-        private void WindowClosed(object sender, EventArgs e)
-        {
-            RenderWindow w = (RenderWindow)sender;
-            w.Close();
-        }
+        private void CheckCollisionWithBall(GameObject collideable)
+            => ball.TryChangeDirectionOnCollision(collideable);
         #endregion
     }
 }
